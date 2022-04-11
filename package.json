@@ -1,0 +1,19 @@
+{
+  "name": "lifeblue",
+  "version": "1.0.0",
+  "description": "Lifeblue Front End Developer Assessment",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel --no-cache --no-source-maps --open",
+    "build": "npm run clean:dist && parcel build --public-url ./",
+    "clean:dist": "rimraf dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.4.1",
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {}
+}
