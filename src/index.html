@@ -20,15 +20,13 @@
             <p>At Sprout Kids Yoga & Mindfulness we promote the development and happiness of your child through yoga and mindfulness.</p>
             <p>Sprout offers an imaginative, uplifting, and communal experience in a positive therapeutic environment that helps our mini-yogis reach their full potential. We incorporate stories, music and games to learn poses, sequences and relaxation techniques.</p>
             <p>Our mission is to provide a family-friendly child-based yoga practice that supports children of all needs by promoting movement and boosting self-esteem - fostering a healthy, happy, and balanced life on and off the mat.</p>
-            </p>
+        </div>
+        <div class="start">
+            <button type="button" class="btn btn-primary btn-start">Book a Yoga Class</button>
         </div>
     </header>
     <main class="container" role="main">
-        <form name="bookingForm">
-            <section id="start" class="question">
-                <h2>Ready to start booking?</h2>
-            </section>
-
+        <form id="form" name="form">
             <section class="question radio-group">
                 <label class="section-header">Select your class frequency:</label>
                 <div class="section-body">
@@ -80,7 +78,7 @@
                 <label class="section-header" for="name">Enter your child's name:</label>
                 <div class="section-body">
                     <input type="text" id="name" name="name" class="form-element">
-                    <div class="section-body">
+                <div class="section-body">
             </section>
             
             <section class="question">
@@ -114,10 +112,10 @@
             <section id="summary" class="question"></section>
 
             <nav id="navigation" class="navigation" role="navigation">
-                <button type="button" class="btn btn-primary btn-prev">Prev</button>
-                <button type="button" class="btn btn-primary btn-next">Next</button>
-                <button type="submit" class="btn btn-primary btn-submit">Submit</button>
-                <button type="button" class="btn btn-primary btn-restart">Star Over</button>
+                <button type="button" class="btn btn-primary btn-prev hidden">Prev</button>
+                <button type="button" class="btn btn-primary btn-next hidden">Next</button>
+                <button type="submit" class="btn btn-primary btn-submit hidden">Submit</button>
+                <button type="button" class="btn btn-primary btn-restart hidden">Book Another Yoga Class</button>
             </nav>
 
             <section id="progress" class="progress hidden">
@@ -128,8 +126,8 @@
 
         </form>
     </main>
-    <footer role="contentinfo">
-        <span>&copy;</span> <span>Sprout Kids Yoga & Mindfulness</span> <span class="footer-year"></span>
+    <footer class="container" role="contentinfo">
+        <span>&copy;</span>&nbsp;<span class="footer-year"></span>&nbsp;<span>Sprout Kids Yoga & Mindfulness</span>
     </footer>
     <script src="./index.js"></script>
 </body>

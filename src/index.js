@@ -4,29 +4,23 @@ const questions = Array.from(document.querySelectorAll('.question'));
 // set min date to tomorrow for date input
 const date = new Date();
 const year = date.getFullYear();
-let month = date.getMonth() + 1;
-let day = date.getDate() + 1;
-if (month < 10) {
-    month = '0' + month.toString();
-}
-if (day < 10) {
-    day = '0' + day.toString();
-}
-const minDate = year + '-' + month + '-' + day;
+const month = (date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+const day = (date.getDate() + 1) < 10 ? `0${date.getDate() + 1}` : date.getDate() + 1;
+const minDate = `${year}-${month}-${day}`;
 const dateInput = document.querySelector('input[name="date"]');
 dateInput.setAttribute('min', minDate);
 
 // set footer year
-const footerYear = document.querySelector('.footer-year');
-footerYear.innerHTML = year;
+document.querySelector('.footer-year').innerHTML = year;
 
 // get navigation buttons
-const prevButton = document.querySelector('#navigation button.btn-prev');
-const nextButton = document.querySelector('#navigation button.btn-next');
-const submitButton = document.querySelector('#navigation button.btn-submit');
-const startOverButton = document.querySelector('button.btn-restart');
-startOverButton.classList.add('hidden');
+const startButton = document.querySelector('.btn-start');
+const prevButton = document.querySelector('.btn-prev');
+const nextButton = document.querySelector('.btn-next');
+const submitButton = document.querySelector('.btn-submit');
+const startOverButton = document.querySelector('.btn-restart');
 
+// get progress bar elements
 const progress = document.querySelector('#progress');
 const progressBar = progress.querySelector('#progress-bar');
 const progressValue = progress.querySelector('#progress-value');
@@ -36,163 +30,123 @@ let finalData;
 
 let formData = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : [];
 
-if (formData.length !== 0) {
-
-    counter = formData.length;
-
-    formData.forEach(data => {
-
-        for (let key in data) {
-
-            if (key === 'question' || key === 'type') {
-                continue;
-            }
-
-            if (data.type === 'radio') {
-                let radio = questions[data.question].querySelector(`input[name="frequency"][value="${data.frequency}"]`);
-                radio.checked = true;
-            } else {
-                let input = questions[data.question].querySelector('.form-element');
-                input.value = data[key];
-            }
-
-        }
-
-    });
-
-} else {
-
-    counter = 0;
-    formData = [];
-
-}
-
-// console.log('Local Storage:', formData);
-
 updateProgress = number => {
-    if (number === 0) {
-        progress.classList.add('hidden');
-    } else {
-        progress.classList.remove('hidden');
-    }
-    let progressPercent = ((number - 1) / 10) * 100;
+    if (number > -1) progress.classList.remove('hidden');
+    let progressPercent = (number / 10) * 100;
     progressBar.style.width = `${progressPercent}%`;
     progressValue.innerHTML = `${progressPercent}%`;
     progressBar.setAttribute('aria-valuenow', progressPercent);
 }
 
+showSummary = summaryData => {
+    let summaryContent = '';
+
+    summaryData.forEach(data => {
+
+        if (data.type === 'radio') {
+            summaryContent += `
+                <section class="summary-section radio-group">
+                    <div>Class frequency:</div>
+                    <div>
+                        <label for="single">
+                            <input type="radio" id="single" name="ffrequency" value="single" ${data.value === 'single' ? 'checked' : ''}>
+                            <span>Single</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label for="monthly">
+                            <input type="radio" id="monthly" name="ffrequency" value="monthly" ${data.value === 'monthly' ? 'checked' : ''}>
+                            <span>Monthly</span>
+                        </label>
+                    </div>
+                </section>
+            `;
+        }
+
+        if (data.type === 'select') {
+            summaryContent += `
+            <section class="summary-section select-group">
+                <div>Class type:</div>
+                <select id="class" name="class" class="form-element">
+                    <option value="">Please select an option</option>
+                    <option value="infant" ${data.value === 'infant' ? 'selected' : ''}>Infant Yoga</option>
+                    <option value="baby" ${data.value === 'baby' ? 'selected' : ''}>Baby Yoga</option>
+                    <option value="kids" ${data.value === 'kids' ? 'selected' : ''}>Kids Yoga</option>
+                </select>
+            </section>
+            `;
+        }
+
+        if (data.type === 'date') {
+            summaryContent += `
+            <section class="summary-section">
+                <div>Date:</div>
+                <div><input type="date" id="date" name="date" min="${minDate}" value="${data.value}" class="form-element"></div>
+            </section>
+            `;
+        }
+
+        if (data.type === 'email') {
+            summaryContent += `
+            <section class="summary-section">
+                <div>Email:</div>
+                <div><input type="email" id="email" name="email" value="${data.value}" class="form-element"></div>
+            </section>
+            `;
+        }
+
+        if (data.type === 'tel') {
+            summaryContent += `
+            <section class="summary-section">
+                <div>Phone:</div>
+                <div><input type="tel" id="tel" name="tel" value="${data.value}" class="form-element"></div>
+            </section>
+            `;
+        }
+
+        if (data.type === 'number') {
+            summaryContent += `
+            <section class="summary-section">
+                <div>Child's age:</div>
+                <div><input type="number" id="age" name="age" min="1" max="12" value="${data.value}" class="form-element"></div>
+            </section>
+            `;
+        }
+
+        if (data.type === 'text') {
+            summaryContent += `<section class="summary-section">`;
+            if (data.name === 'name') summaryContent += `<div>Child's name:</div>`;
+            if (data.name === 'parent') summaryContent += `<div>Parent's name:</div>`;
+            if (data.name === 'event') summaryContent += `<div>Event:</div>`;
+            if (data.name === 'info') summaryContent += `<div>Additional info:</div>`;
+            summaryContent += `<div><input type="text" id="${data.name}" name="${data.name}" value="${data.value}" class="form-element"></div></section>
+            `;
+        }
+
+    });
+
+    document.getElementById('summary').innerHTML = `
+        <h2>Summary</h2>
+        ${summaryContent}
+    `;
+}
+
 showQuestion = number => {
+    startButton.classList.add('hidden');
     questions[number].classList.add('active');
 
     if (number === 0) {
         prevButton.classList.add('hidden');
-        nextButton.textContent = 'Start';
     } else {
         prevButton.classList.remove('hidden');
-        nextButton.textContent = 'Next';
     }
+
+    nextButton.classList.remove('hidden');
 
     if (number === questions.length - 1) {
 
-        let summaryContent = '';
+        showSummary(formData);
 
-        formData.forEach(data => {
-
-            for (let key in data) {
-
-                if (key === 'question' || key === 'type') {
-                    continue;
-                }
-
-                if (data.type === 'radio') {
-                    summaryContent += `
-                        <section class="summary-section radio-group">
-                            <div>${data.question}. Class frequency:</div>
-                            <div>
-                                <label for="single">
-                                    <input type="radio" id="single" name="frequency" value="single" ${data.frequency === 'single' ? 'checked' : ''}>
-                                    <span>Single</span>
-                                </label>
-                            </div>
-                            <div>
-                                <label for="monthly">
-                                    <input type="radio" id="monthly" name="frequency" value="monthly" ${data.frequency === 'monthly' ? 'checked' : ''}>
-                                    <span>Monthly Package</span>
-                                </label>
-                            </div>
-                        </section>
-                    `;
-                }
-
-                if (data.type === 'select') {
-                    summaryContent += `
-                    <section class="summary-section select-group">
-                        <div>${data.question}. Class type:</div>
-                        <select id="class" name="class" class="form-element">
-                            <option value="">Please select an option</option>
-                            <option value="infant" ${data.class === 'infant' ? 'selected' : ''}>Infant Yoga</option>
-                            <option value="baby" ${data.class === 'baby' ? 'selected' : ''}>Baby Yoga</option>
-                            <option value="kids" ${data.class === 'kids' ? 'selected' : ''}>Kids Yoga</option>
-                        </select>
-                    </section>
-                    `;
-                }
-
-                if (data.type === 'date') {
-                    summaryContent += `
-                    <section class="summary-section">
-                        <div>${data.question}. Date:</div>
-                        <div><input type="date" id="date" name="date" min="${minDate}" value="${data[key]}" class="form-element"></div>
-                    </section>
-                    `;
-                }
-
-                if (data.type === 'email') {
-                    summaryContent += `
-                    <section class="summary-section">
-                        <div>${data.question}. Email:</div>
-                        <div><input type="email" id="email" name="email" value="${data[key]}" class="form-element"></div>
-                    </section>
-                    `;
-                }
-
-                if (data.type === 'tel') {
-                    summaryContent += `
-                    <section class="summary-section">
-                        <div>${data.question}. Phone:</div>
-                        <div><input type="tel" id="tel" name="tel" value="${data[key]}" class="form-element"></div>
-                    </section>
-                    `;
-                }
-
-                if (data.type === 'number') {
-                    summaryContent += `
-                    <section class="summary-section">
-                        <div>${data.question}. Child's age:</div>
-                        <div><input type="number" id="age" name="age" min="1" max="12" value="${data[key]}" class="form-element"></div>
-                    </section>
-                    `;
-                }
-
-                if (data.type === 'text') {
-                    summaryContent += `<section class="summary-section">`;
-                    if (key === 'name') summaryContent += `<div>${data.question}. Child's name:</div>`;
-                    if (key === 'parent') summaryContent += `<div>${data.question}. Parent's name:</div>`;
-                    if (key === 'event') summaryContent += `<div>${data.question}. Event:</div>`;
-                    if (key === 'info') summaryContent += `<div>${data.question}. Additional info:</div>`;
-                    summaryContent += `<div><input type="text" id="${key}" name="${key}" value="${data[key]}" class="form-element"></div></section>
-                    `;
-                }
-
-            }
-
-        });
-
-        document.getElementById('summary').innerHTML = `
-            <h2>Summary</h2>
-            ${summaryContent}
-        `;
-        
         prevButton.classList.add('hidden');
         nextButton.classList.add('hidden');
         submitButton.classList.remove('hidden');
@@ -207,7 +161,56 @@ showQuestion = number => {
     updateProgress(number);
 }
 
-showQuestion(counter);
+if (formData.length > 0) {
+
+    startButton.classList.add('hidden');
+    counter = formData.length;
+    showQuestion(counter);
+
+    formData.forEach(data => {
+
+        if (data.type === 'radio') {
+            questions[data.question].querySelector(`[value="${data.value}"]`).checked = true;
+        } else {
+            questions[data.question].querySelector('.form-element').value = data.value;
+        }
+
+    });
+
+} else {
+
+    counter = -1;
+
+}
+
+// console.log('Local Storage:', formData);
+
+showSubmission = (submittedData) => {
+    let finalContent = '';
+
+    submittedData.forEach(data => {
+
+        if (data.type === 'radio') finalContent += `<section class="summary-section">Class frequency: ${data.value}</section>`;
+        if (data.type === 'select') finalContent += `<section class="summary-section">Class type: ${data.value}</section>`;
+        if (data.type === 'date') finalContent += `<section class="summary-section">Date: ${data.value}</section>`;
+        if (data.type === 'email') finalContent += `<section class="summary-section">Email: ${data.value}</section>`;
+        if (data.type === 'tel') finalContent += `<section class="summary-section">Phone: ${data.value}</section>`;
+        if (data.type === 'number') finalContent += `<section class="summary-section">Child's age: ${data.value}</section>`;
+
+        if (data.type === 'text') {
+            if (data.name === 'name') finalContent += `<section class="summary-section">Child's name: ${data.value}</section>`;
+            if (data.name === 'parent') finalContent += `<section class="summary-section">Parent's name: ${data.value}</section>`;
+            if (data.name === 'event') finalContent += `<section class="summary-section">Event: ${data.value}</section>`;
+            if (data.name === 'info') finalContent += `<section class="summary-section">Additional info: ${data.value}</section>`;
+        }
+
+    });
+
+    document.getElementById('summary').innerHTML = `
+        <h2>Your information has been submitted!</h2>
+        ${finalContent}
+    `;
+}
 
 prevQuestion = number => {
     questions[number].classList.remove('active');
@@ -222,6 +225,11 @@ nextQuestion = number => {
     showQuestion(counter);
 }
 
+startButton.addEventListener('click', () => {
+    counter++;
+    showQuestion(counter);
+});
+
 prevButton.addEventListener('click', () => {
     prevQuestion(counter);
 });
@@ -231,7 +239,6 @@ nextButton.addEventListener('click', () => {
 });
 
 startOverButton.addEventListener('click', () => {
-    localStorage.clear();
     location.reload();
 });
 
@@ -240,38 +247,22 @@ submitButton.addEventListener('click', e => {
 
     if (!validateSummary()) return false;
 
-    let finalContent = '';
-
-    finalData.forEach(data => {
-
-        for (let key in data) {
-
-            if (key === 'question' || key === 'type') {
-                continue;
-            }
-
-            if (data.type === 'radio') finalContent += `<section class="summary-section">${data.question}. Class frequency: ${data[key]}</section>`;
-            if (data.type === 'select') finalContent += `<section class="summary-section">${data.question}. Class type: ${data[key]}</section>`;
-            if (data.type === 'date') finalContent += `<section class="summary-section">${data.question}. Date: ${data[key]}</section>`;
-            if (data.type === 'email') finalContent += `<section class="summary-section">${data.question}. Email: ${data[key]}</section>`;
-            if (data.type === 'tel') finalContent += `<section class="summary-section">${data.question}. Phone: ${data[key]}</section>`;
-            if (data.type === 'number') finalContent += `<section class="summary-section">${data.question}. Child's age: ${data[key]}</section>`;
-
-            if (data.type === 'text') {
-                if (key === 'name') finalContent += `<section class="summary-section">${data.question}. Child's name: ${data[key]}</section>`;
-                if (key === 'parent') finalContent += `<section class="summary-section">${data.question}. Parent's name: ${data[key]}</section>`;
-                if (key === 'event') finalContent += `<section class="summary-section">${data.question}. Event: ${data[key]}</section>`;
-                if (key === 'info') finalContent += `<section class="summary-section">${data.question}. Additional info: ${data[key]}</section>`;
-            }
-
-        }
-
+    fetch('submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(finalData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch(error => {
+        console.log('Error:', error)
     });
 
-    document.getElementById('summary').innerHTML = `
-        <h2>Your info has been submitted!</h2>
-        ${finalContent}
-    `;
+    showSubmission(finalData);
 
     prevButton.classList.add('hidden');
     nextButton.classList.add('hidden');
@@ -291,7 +282,7 @@ validateQuestion = () => {
     let valid = true;
     let currentData = {};
 
-    if (counter !== questions.length - 1) {
+    if (counter < questions.length - 1) {
         currentData.question = counter;
     }
 
@@ -300,10 +291,11 @@ validateQuestion = () => {
     if (questions[counter].classList.contains('radio-group')) {
 
         currentData.type = 'radio';
+        currentData.name = 'frequency';
         let checkRadio = document.querySelector('input[name="frequency"]:checked');
 
         if (checkRadio != null) {
-            currentData.frequency = checkRadio.value;
+            currentData.value = checkRadio.value;
         } else {
             valid = false;
             alert('Please select an option');
@@ -312,39 +304,37 @@ validateQuestion = () => {
     } else if (questions[counter].classList.contains('select-group')) {
 
         currentData.type = 'select';
-        currentData.class = input.value;
+        currentData.name = 'class';
 
         if (input.value === '') {
             valid = false;
             alert('Please select an option');
         } else {
-            currentData.class = input.value;
+            currentData.value = input.value;
         }
 
     } else {
 
-        if (counter !== 0) {
-            currentData.type = input.getAttribute('type');
+        currentData.type = input.type;
+        currentData.name = input.name;
 
-            if (input.value === '') {
-                valid = false;
-                input.classList.add('error');
-                alert('Please fill out this field');
-            } else {
-                if (currentData.type === 'email') {
-                    if (!validateEmail(input.value)) {
-                        valid = false;
-                        input.classList.add('error');
-                        alert('Please enter a valid email');
-                    } else {
-                        currentData.email = input.value;
-                    }
+        if (input.value === '') {
+            valid = false;
+            input.classList.add('error');
+            alert('Please fill out this field');
+        } else {
+            if (currentData.type === 'email') {
+                if (!validateEmail(input.value)) {
+                    valid = false;
+                    input.classList.add('error');
+                    alert('Please enter a valid email');
                 } else {
-                    input.classList.remove('error');
-                    currentData[input.name] = input.value;
+                    currentData.value = input.value;
                 }
+            } else {
+                input.classList.remove('error');
+                currentData.value = input.value;
             }
-
         }
 
     }
@@ -362,23 +352,23 @@ validateSummary = () => {
     let valid = true;
     let sections = Array.from(questions[counter].querySelectorAll('section.summary-section'));
     finalData = [];
-    finalData.push({ question: 0 });
 
     sections.forEach((section, index) => {
 
         if (section.classList.contains('radio-group')) {
 
-            let checkRadio = section.querySelector('input[name="frequency"]:checked');
+            let checkRadio = section.querySelector('input[name="ffrequency"]:checked');
 
             if (checkRadio != null) {
                 finalData.push({
-                    question: index + 1,
+                    question: index,
                     type: 'radio',
-                    frequency: checkRadio.value
+                    name: 'frequency',
+                    value: checkRadio.value
                 });
             } else {
                 valid = false;
-                alert('Please select an option');
+                alert('Please fill out all required fields');
             }
 
         } else if (section.classList.contains('select-group')) {
@@ -387,12 +377,13 @@ validateSummary = () => {
 
             if (select.value === '') {
                 valid = false;
-                alert('Please select an option');
+                alert('Please fill out all required fields');
             } else {
                 finalData.push({
-                    question: index + 1,
+                    question: index,
                     type: 'select',
-                    class: select.value
+                    name: 'class',
+                    value: select.value
                 });
             }
 
@@ -403,7 +394,7 @@ validateSummary = () => {
             if (input.value === '') {
                 valid = false;
                 input.classList.add('error');
-                alert('Please fill out this field');
+                alert('Please fill out all required fields');
             } else {
                 if (input.type === 'email') {
                     if (!validateEmail(input.value)) {
@@ -412,17 +403,19 @@ validateSummary = () => {
                         alert('Please enter a valid email');
                     } else {
                         finalData.push({
-                            question: index + 1,
-                            type: input.getAttribute('type'),
-                            [input.name]: input.value
+                            question: index,
+                            type: input.type,
+                            name: input.name,
+                            value: input.value
                         });
                     }
                 } else {
                     input.classList.remove('error');
                     finalData.push({
-                        question: index + 1,
-                        type: input.getAttribute('type'),
-                        [input.name]: input.value
+                        question: index,
+                        type: input.type,
+                        name: input.name,
+                        value: input.value
                     });
                 }
             }

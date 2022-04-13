@@ -4,8 +4,10 @@
   "description": "Lifeblue Front End Developer Assessment",
   "source": "src/index.html",
   "scripts": {
-    "start": "parcel --no-cache --no-source-maps --open",
-    "build": "npm run clean:dist && parcel build --public-url ./",
+    "dev": "nodemon app.js NODE_ENV=development",
+    "start": "node app.js NODE_ENV=production",
+    "prestart": "npm run build",
+    "build": "parcel build --no-cache --no-source-maps --no-content-hash --public-url ./",
     "clean:dist": "rimraf dist"
   },
   "keywords": [],
@@ -15,5 +17,8 @@
     "parcel": "^2.4.1",
     "rimraf": "^3.0.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.17.3",
+    "nodemon": "^2.0.15"
+  }
 }
