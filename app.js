@@ -31,26 +31,32 @@ app.get('/api/data', (req, res) => {
 });
 
 app.post('/submit', (req, res) => {
+    const data = req.body;
     if (!fs.existsSync('data')) {
-        fs.mkdir('data', (error) => {
+        fs.mkdir('data', error => {
             if (error) {
+                res.status(500).send(error);
                 console.log('Error:', error);
             } else {
-                fs.writeFile('data/data.json', JSON.stringify(req.body, null, 4), error => {
+                fs.writeFile('data/data.json', JSON.stringify(data, null, 4), error => {
                     if (error) {
+                        res.status(500).send(error);
                         console.log('Error:', error);
                     } else {
-                        console.log('Directory and file created');
+                        res.status(200).send({success: true});
+                        console.log('File successfully created');
                     }
                 });
             }
         });
     } else {
-        fs.writeFile('data/data.json', JSON.stringify(req.body, null, 4), error => {
+        fs.writeFile('data/data.json', JSON.stringify(data, null, 4), error => {
             if (error) {
+                res.status(500).send(error);
                 console.log('Error:', error);
             } else {
-                console.log('Successfully written to file');
+                res.status(200).send({success: true});
+                console.log('File successfully created');
             }
         });
     }

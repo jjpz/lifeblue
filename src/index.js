@@ -249,20 +249,16 @@ submitButton.addEventListener('click', e => {
 
     fetch('submit', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(finalData)
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-    })
-    .catch(error => {
-        console.log('Error:', error)
+    .then(response => {
+        if (response.ok) {
+            showSubmission(finalData);
+        } else {
+            alert('Something went wrong. Please try again.\nIf the problem persists, please contact us.');
+        }
     });
-
-    showSubmission(finalData);
 
     prevButton.classList.add('hidden');
     nextButton.classList.add('hidden');
